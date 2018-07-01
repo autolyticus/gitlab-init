@@ -4,34 +4,120 @@
 Creates a repo with the name being the first Command line argument
 Both on Gitlab and Github
 Uses gitlab as the origin
-TODO: Setup push mirroring automatically on Gitlab -> Github
 
 '''
 
-from sys import argv
+# Import all the things
 import sh
 import os
+from os.path import expanduser
 from sh.contrib import git
 import requests as r
+from selenium import webdriver
+from time import sleep
 
-repoName = argv[1]
+# A very simple cd context manager
+from cd import cd
 
-# https://gitlab.com/reisub0/nim-chat/settings/repository
-if not os.path.exists(os.path.join(os.getcwd(), '.git')):
-    git.init()
 
-with open(os.path.expanduser('~/.local/.gitlabtoken'), 'r') as f:
-    gitlabAuth = f.read()
+# Step 0: Input from the user
 
+userName = input("Enter username: ")
+repoName = input("Enter repo name: ")
+
+
+# Check if gitlab token is present
+with open(os.path.expanduser('~/.local/.gitlabtoken'), 'rb') as f:
+    gitlabAuth = f.read().decode().split('\n')[0]
+
+# Check if github token is present
+with open(os.path.expanduser('~/.local/.githubtoken'), 'rb') as f:
+    githubAuth = f.read().decode().split('\n')[0]
+
+
+# Step 1: Create the repos on remotes
+
+# Try to create a new Gitlab repo with repo name
 try:
-    # sh.lab('project', 'create', repoName)
-    response = r.post('http://gitlab.com', json={"name": repoName, "visibility": "public"})
-    r.raise_for_status()
-except Exception:
+    headers = {
+        'Private-Token': gitlabAuth
+    }
+    response = r.post('https://gitlab.com/api/v4/projects', json={"name": repoName,
+                                                                  "visibility": "public"},
+                      headers=headers)
+    response.raise_for_status()
+except Exception as e:
     print('Something went wrong with creating the GitLab repo, Already exists?')
-    print(Exception)
+    template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+    message = template.format(type(e).__name__, e.args)
+    print(message)
+    choice = input('Continue???(y/n)')
+    if choice != y:
+        os.exit(1)
 
+# Try to create a new Github repo with repo name
 try:
-    os.system('hub create')
-except:
+    headers = {
+        'Authorization': 'token ' + githubAuth
+    }
+    response = r.post('https://api.github.com/user/repos', json={"name": repoName,
+                                                                 'private': False,
+                                                                 },
+                      headers=headers)
+    response.raise_for_status()
+except Exception as e:
     print('Something went wrong with creating the GitHub repo, Already exists?')
+    template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+    message = template.format(type(e).__name__, e.args)
+    print(message)
+    choice = input('Continue???(y/n)')
+    if choice != y:
+        os.exit(1)
+
+
+# Step 2: Add Github.com as a push mirror on Gitlab
+
+# Set the command line options for chromium web driver
+chrome_options = webdriver.ChromeOptions()
+
+# Change this to your chrome data dir usually ~/.config/chromium/ on *nix
+path = '~/.config/Chromium'
+chrome_options.add_argument(f'user-data-dir={expanduser(path)}')
+chrome_options.add_argument(f'class=selenium-chrome')
+
+driver = webdriver.Chrome(chrome_options=chrome_options)
+driver.get(f'https://gitlab.com/{userName}/{repoName}/settings/repository')
+
+# Wait for the page to load
+sleep(2)
+
+pushExpandButton = driver.find_element_by_xpath(
+    '//*[@id="content-body"]/section[3]/div[1]/button')
+pushExpandButton.click()
+# Wait for the animation to play out
+sleep(0.1)
+
+checkBox = driver.find_element_by_id(
+    'project_remote_mirrors_attributes_0_enabled')
+if not checkBox.is_selected():
+    checkBox.click()
+
+pushUrl = driver.find_element_by_id('project_remote_mirrors_attributes_0_url')
+pushUrl.clear()
+pushUrl.send_keys(
+    f'https://{userName}:{githubAuth}@github.com/{userName}/{repoName}')
+
+pushUrl.submit()
+sleep(1)
+driver.close()
+
+# Step 3: Init the new git repo and add gitlab as origin
+
+sh.mkdir('-p', repoName)
+with cd(repoName):
+    git.init()
+    git.remote.add.origin(f'git@gitlab.com:{userName}/{repoName}')
+
+print(
+    f"All done! An empty repo {repoName} has been initialised at ./{repoName} with remote pre-configured.")
+print("Happy pushing!")
