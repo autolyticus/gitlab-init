@@ -22,16 +22,17 @@ from cd import cd
 
 # Step 0: Input from the user
 
+print()
 userName = input("Enter username: ")
 repoName = input("Enter repo name: ")
 
 
 # Check if gitlab token is present
-with open(os.path.expanduser('~/.local/.gitlabtoken'), 'rb') as f:
+with open(expanduser('~/.local/.gitlabtoken'), 'rb') as f:
     gitlabAuth = f.read().decode().split('\n')[0]
 
 # Check if github token is present
-with open(os.path.expanduser('~/.local/.githubtoken'), 'rb') as f:
+with open(expanduser('~/.local/.githubtoken'), 'rb') as f:
     githubAuth = f.read().decode().split('\n')[0]
 
 
@@ -47,12 +48,13 @@ try:
                       headers=headers)
     response.raise_for_status()
 except Exception as e:
+    print()
     print('Something went wrong with creating the GitLab repo, Already exists?')
     template = "An exception of type {0} occurred. Arguments:\n{1!r}"
     message = template.format(type(e).__name__, e.args)
     print(message)
     choice = input('Continue???(y/n)')
-    if choice != y:
+    if choice != 'y':
         os.exit(1)
 
 # Try to create a new Github repo with repo name
@@ -66,12 +68,13 @@ try:
                       headers=headers)
     response.raise_for_status()
 except Exception as e:
+    print()
     print('Something went wrong with creating the GitHub repo, Already exists?')
     template = "An exception of type {0} occurred. Arguments:\n{1!r}"
     message = template.format(type(e).__name__, e.args)
     print(message)
     choice = input('Continue???(y/n)')
-    if choice != y:
+    if choice != 'y':
         os.exit(1)
 
 
@@ -115,9 +118,20 @@ driver.close()
 
 sh.mkdir('-p', repoName)
 with cd(repoName):
-    git.init()
+    try:
+        git.init()
+    except Exception as e:
+        print('Something went wrong with executing git init. Maybe the repo is already initialised?\n')
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(e).__name__, e.args)
+        print(message)
+        choice = input('Continue???(y/n)')
+        if choice != 'y':
+            os.exit(1)
+
     git.remote.add.origin(f'git@gitlab.com:{userName}/{repoName}')
 
+print()
 print(
     f"All done! An empty repo {repoName} has been initialised at ./{repoName} with remote pre-configured.")
 print("Happy pushing!")
