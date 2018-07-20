@@ -95,7 +95,7 @@ driver.get(f'https://gitlab.com/{userName}/{repoName}/settings/repository')
 sleep(2)
 
 pushExpandButton = driver.find_element_by_xpath(
-    '//*[@id="content-body"]/section[3]/div[1]/button')
+    '//*[@id="js-push-remote-settings"]/div[1]/button')
 pushExpandButton.click()
 # Wait for the animation to play out
 sleep(0.1)
@@ -109,6 +109,11 @@ pushUrl = driver.find_element_by_id('project_remote_mirrors_attributes_0_url')
 pushUrl.clear()
 pushUrl.send_keys(
     f'https://{userName}:{githubAuth}@github.com/{userName}/{repoName}')
+
+checkBox = driver.find_element_by_id(
+    'project_remote_mirrors_attributes_0_only_protected_branches')
+if not checkBox.is_selected():
+    checkBox.click()
 
 pushUrl.submit()
 sleep(1)
