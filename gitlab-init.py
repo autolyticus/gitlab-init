@@ -14,6 +14,7 @@ from os.path import expanduser
 from sh.contrib import git
 import requests as r
 from selenium import webdriver
+from selenium.webdriver.support.ui import Select
 from time import sleep
 
 # A very simple cd context manager
@@ -96,24 +97,27 @@ driver.get(f'https://gitlab.com/{userName}/{repoName}/settings/repository')
 # __import__('pdb').set_trace()
 
 pushExpandButton = driver.find_element_by_xpath(
-    '//*[@id="js-push-remote-settings"]/div[1]/button')
+    '//*[@id="content-body"]/section[2]/div[1]/button')
 pushExpandButton.click()
 # Wait for the animation to play out
 sleep(0.1)
 
-checkBox = driver.find_element_by_id(
-    'project_remote_mirrors_attributes_0_enabled')
-if not checkBox.is_selected():
-    checkBox.click()
+# checkBox = driver.find_element_by_id(
+#     'project_remote_mirrors_attributes_0_enabled')
+# if not checkBox.is_selected():
+#     checkBox.click()
 
-pushUrl = driver.find_element_by_id('project_remote_mirrors_attributes_0_url')
+pushUrl = driver.find_element_by_id('url')
 pushUrl.clear()
 pushUrl.send_keys(
     f'https://{userName}:{githubAuth}@github.com/{userName}/{repoName}')
 
+select = Select(driver.find_element_by_id('mirror_direction'))
+select.select_by_visible_text('Push')
+
 checkBox = driver.find_element_by_id(
-    'project_remote_mirrors_attributes_0_only_protected_branches')
-if not checkBox.is_selected():
+    'only_protected_branches')
+if checkBox.is_selected():
     checkBox.click()
 
 pushUrl.submit()
