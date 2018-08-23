@@ -92,7 +92,8 @@ driver = webdriver.Chrome(chrome_options=chrome_options)
 driver.get(f'https://gitlab.com/{userName}/{repoName}/settings/repository')
 
 # Wait for the page to load
-sleep(2)
+# sleep(2)
+# __import__('pdb').set_trace()
 
 pushExpandButton = driver.find_element_by_xpath(
     '//*[@id="js-push-remote-settings"]/div[1]/button')
@@ -116,7 +117,7 @@ if not checkBox.is_selected():
     checkBox.click()
 
 pushUrl.submit()
-sleep(1)
+# sleep(1)
 driver.close()
 
 # Step 3: Init the new git repo and add gitlab as origin
