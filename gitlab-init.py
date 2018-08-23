@@ -121,7 +121,7 @@ if checkBox.is_selected():
     checkBox.click()
 
 pushUrl.submit()
-# sleep(1)
+sleep(1)
 driver.close()
 
 # Step 3: Init the new git repo and add gitlab as origin
