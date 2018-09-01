@@ -111,17 +111,21 @@ pushUrl = driver.find_element_by_id('url')
 pushUrl.clear()
 pushUrl.send_keys(
     f'https://{userName}:{githubAuth}@github.com/{userName}/{repoName}')
+sleep(0.1)
 
 select = Select(driver.find_element_by_id('mirror_direction'))
 select.select_by_visible_text('Push')
+sleep(1)
 
 checkBox = driver.find_element_by_id(
     'only_protected_branches')
 if checkBox.is_selected():
     checkBox.click()
+sleep(0.1)
 
 pushUrl.submit()
-sleep(1)
+sleep(2)
+# __import__('pdb').set_trace()
 driver.close()
 
 # Step 3: Init the new git repo and add gitlab as origin
