@@ -97,7 +97,7 @@ driver.get(f'https://gitlab.com/{userName}/{repoName}/settings/repository')
 # __import__('pdb').set_trace()
 
 pushExpandButton = driver.find_element_by_xpath(
-    '//*[@id="content-body"]/section[2]/div[1]/button')
+    '//*[@id="js-push-remote-settings"]/div[1]/button')
 pushExpandButton.click()
 # Wait for the animation to play out
 sleep(0.1)
