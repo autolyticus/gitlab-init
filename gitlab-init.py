@@ -143,7 +143,7 @@ with cd(repoName):
         if choice != 'y':
             os.exit(1)
 
-    git.remote.add.origin(f'git@gitlab.com:{userName}/{repoName}')
+    git.remote.add.origin(f'https://gitlab.com/{userName}/{repoName}')
 
 print()
 print(
