@@ -90,7 +90,8 @@ chrome_options.add_argument(f'user-data-dir={expanduser(path)}')
 chrome_options.add_argument(f'class=selenium-chrome')
 
 driver = webdriver.Chrome(chrome_options=chrome_options)
-driver.get(f'https://gitlab.com/{userName}/{repoName}/settings/repository')
+driver.get(
+    f'''https://gitlab.com/{userName}/{repoName.replace('.', '-')}/settings/repository''')
 
 # Wait for the page to load
 # sleep(2)
