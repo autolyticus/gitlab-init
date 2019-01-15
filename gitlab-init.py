@@ -110,16 +110,20 @@ sleep(0.1)
 
 pushUrl = driver.find_element_by_id('url')
 pushUrl.clear()
-pushUrl.send_keys(
-    f'https://{userName}:{githubAuth}@github.com/{userName}/{repoName}')
+pushUrl.send_keys(f'https://{userName}@github.com/{userName}/{repoName}')
 sleep(0.1)
 
 select = Select(driver.find_element_by_id('mirror_direction'))
 select.select_by_visible_text('Push')
 sleep(1)
 
-checkBox = driver.find_element_by_id(
-    'only_protected_branches')
+password = driver.find_element_by_id(
+    'project_remote_mirrors_attributes_0_password')
+password.clear()
+password.send_keys(githubAuth)
+sleep(0.1)
+
+checkBox = driver.find_element_by_id('only_protected_branches')
 if checkBox.is_selected():
     checkBox.click()
 sleep(0.1)
