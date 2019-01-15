@@ -20,13 +20,11 @@ from time import sleep
 # A very simple cd context manager
 from cd import cd
 
-
 # Step 0: Input from the user
 
 print()
 userName = input("Enter username: ")
 repoName = input("Enter repo name: ")
-
 
 # Check if gitlab token is present
 with open(expanduser('~/.local/.gitlabtoken'), 'rb') as f:
@@ -36,21 +34,23 @@ with open(expanduser('~/.local/.gitlabtoken'), 'rb') as f:
 with open(expanduser('~/.local/.githubtoken'), 'rb') as f:
     githubAuth = f.read().decode().split('\n')[0]
 
-
 # Step 1: Create the repos on remotes
 
 # Try to create a new Gitlab repo with repo name
 try:
-    headers = {
-        'Private-Token': gitlabAuth
-    }
-    response = r.post('https://gitlab.com/api/v4/projects', json={"name": repoName,
-                                                                  "visibility": "public"},
-                      headers=headers)
+    headers = {'Private-Token': gitlabAuth}
+    response = r.post(
+        'https://gitlab.com/api/v4/projects',
+        json={
+            "name": repoName,
+            "visibility": "public"
+        },
+        headers=headers)
     response.raise_for_status()
 except Exception as e:
     print()
-    print('Something went wrong with creating the GitLab repo, Already exists?')
+    print(
+        'Something went wrong with creating the GitLab repo, Already exists?')
     template = "An exception of type {0} occurred. Arguments:\n{1!r}"
     message = template.format(type(e).__name__, e.args)
     print(message)
@@ -60,24 +60,25 @@ except Exception as e:
 
 # Try to create a new Github repo with repo name
 try:
-    headers = {
-        'Authorization': 'token ' + githubAuth
-    }
-    response = r.post('https://api.github.com/user/repos', json={"name": repoName,
-                                                                 'private': False,
-                                                                 },
-                      headers=headers)
+    headers = {'Authorization': 'token ' + githubAuth}
+    response = r.post(
+        'https://api.github.com/user/repos',
+        json={
+            "name": repoName,
+            'private': False,
+        },
+        headers=headers)
     response.raise_for_status()
 except Exception as e:
     print()
-    print('Something went wrong with creating the GitHub repo, Already exists?')
+    print(
+        'Something went wrong with creating the GitHub repo, Already exists?')
     template = "An exception of type {0} occurred. Arguments:\n{1!r}"
     message = template.format(type(e).__name__, e.args)
     print(message)
     choice = input('Continue???(y/n)')
     if choice != 'y':
         os.exit(1)
-
 
 # Step 2: Add Github.com as a push mirror on Gitlab
 
@@ -91,7 +92,8 @@ chrome_options.add_argument(f'class=selenium-chrome')
 
 driver = webdriver.Chrome(chrome_options=chrome_options)
 driver.get(
-    f'''https://gitlab.com/{userName}/{repoName.replace('.', '-')}/settings/repository''')
+    f'''https://gitlab.com/{userName}/{repoName.replace('.', '-')}/settings/repository'''
+)
 
 # Wait for the page to load
 # sleep(2)
@@ -140,7 +142,9 @@ with cd(repoName):
     try:
         git.init()
     except Exception as e:
-        print('Something went wrong with executing git init. Maybe the repo is already initialised?\n')
+        print(
+            'Something went wrong with executing git init. Maybe the repo is already initialised?\n'
+        )
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
         message = template.format(type(e).__name__, e.args)
         print(message)
@@ -152,5 +156,6 @@ with cd(repoName):
 
 print()
 print(
-    f"All done! An empty repo {repoName} has been initialised at ./{repoName} with remote pre-configured.")
+    f"All done! An empty repo {repoName} has been initialised at ./{repoName} with remote pre-configured."
+)
 print("Happy pushing!")
