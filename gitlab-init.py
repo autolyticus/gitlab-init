@@ -90,7 +90,7 @@ path = '~/.config/Chromium'
 chrome_options.add_argument(f'user-data-dir={expanduser(path)}')
 chrome_options.add_argument(f'class=selenium-chrome')
 
-driver = webdriver.Chrome(chrome_options=chrome_options)
+driver = webdriver.Chrome(options=chrome_options)
 driver.get(
     f'''https://gitlab.com/{userName}/{repoName.replace('.', '-')}/settings/repository'''
 )
