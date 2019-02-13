@@ -9,7 +9,7 @@ Uses gitlab as the origin
 
 # Import all the things
 import sh
-import os
+import sys
 from os.path import expanduser
 from sh.contrib import git
 import requests as r
@@ -56,7 +56,7 @@ except Exception as e:
     print(message)
     choice = input('Continue???(y/n)')
     if choice != 'y':
-        os.exit(1)
+        sys.exit(1)
 
 # Try to create a new Github repo with repo name
 try:
@@ -78,7 +78,7 @@ except Exception as e:
     print(message)
     choice = input('Continue???(y/n)')
     if choice != 'y':
-        os.exit(1)
+        sys.exit(1)
 
 # Step 2: Add Github.com as a push mirror on Gitlab
 
@@ -150,7 +150,7 @@ with cd(repoName):
         print(message)
         choice = input('Continue???(y/n)')
         if choice != 'y':
-            os.exit(1)
+            sys.exit(1)
 
     git.remote.add.origin(f'https://gitlab.com/{userName}/{repoName}')
 
