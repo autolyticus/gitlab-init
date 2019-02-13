@@ -82,58 +82,64 @@ except Exception as e:
 
 # Step 2: Add Github.com as a push mirror on Gitlab
 
-# Set the command line options for chromium web driver
-chrome_options = webdriver.ChromeOptions()
+while True:
+    try:
+        # Set the command line options for chromium web driver
+        chrome_options = webdriver.ChromeOptions()
 
-# Change this to your chrome data dir usually ~/.config/chromium/ on *nix
-path = '~/.config/Chromium'
-chrome_options.add_argument(f'user-data-dir={expanduser(path)}')
-chrome_options.add_argument(f'class=selenium-chrome')
+        # Change this to your chrome data dir usually ~/.config/chromium/ on *nix
+        path = '~/.config/Chromium'
+        chrome_options.add_argument(f'user-data-dir={expanduser(path)}')
+        chrome_options.add_argument(f'class=selenium-chrome')
 
-driver = webdriver.Chrome(options=chrome_options)
-driver.get(
-    f'''https://gitlab.com/{userName}/{repoName.replace('.', '-')}/settings/repository'''
-)
+        driver = webdriver.Chrome(options=chrome_options)
+        driver.get(
+            f'''https://gitlab.com/{userName}/{repoName.replace('.', '-')}/settings/repository'''
+        )
 
-# Wait for the page to load
-# sleep(2)
-# __import__('pdb').set_trace()
+        # Wait for the page to load
+        # sleep(2)
+        # __import__('pdb').set_trace()
 
-pushExpandButton = driver.find_element_by_xpath(
-    '//*[@id="js-push-remote-settings"]/div[1]/button')
-pushExpandButton.click()
-# Wait for the animation to play out
-sleep(0.1)
+        pushExpandButton = driver.find_element_by_xpath(
+            '//*[@id="js-push-remote-settings"]/div[1]/button')
+        pushExpandButton.click()
+        # Wait for the animation to play out
+        sleep(0.1)
 
-# checkBox = driver.find_element_by_id(
-#     'project_remote_mirrors_attributes_0_enabled')
-# if not checkBox.is_selected():
-#     checkBox.click()
+        # checkBox = driver.find_element_by_id(
+        #     'project_remote_mirrors_attributes_0_enabled')
+        # if not checkBox.is_selected():
+        #     checkBox.click()
 
-pushUrl = driver.find_element_by_id('url')
-pushUrl.clear()
-pushUrl.send_keys(f'https://{userName}@github.com/{userName}/{repoName}')
-sleep(0.1)
+        pushUrl = driver.find_element_by_id('url')
+        pushUrl.clear()
+        pushUrl.send_keys(
+            f'https://{userName}@github.com/{userName}/{repoName}')
+        sleep(0.1)
 
-select = Select(driver.find_element_by_id('mirror_direction'))
-select.select_by_visible_text('Push')
-sleep(1)
+        select = Select(driver.find_element_by_id('mirror_direction'))
+        select.select_by_visible_text('Push')
+        sleep(1)
 
-password = driver.find_element_by_id(
-    'project_remote_mirrors_attributes_0_password')
-password.clear()
-password.send_keys(githubAuth)
-sleep(0.1)
+        password = driver.find_element_by_id(
+            'project_remote_mirrors_attributes_0_password')
+        password.clear()
+        password.send_keys(githubAuth)
+        sleep(0.1)
 
-checkBox = driver.find_element_by_id('only_protected_branches')
-if checkBox.is_selected():
-    checkBox.click()
-sleep(0.1)
+        checkBox = driver.find_element_by_id('only_protected_branches')
+        if checkBox.is_selected():
+            checkBox.click()
+        sleep(0.1)
 
-pushUrl.submit()
-sleep(2)
-# __import__('pdb').set_trace()
-driver.close()
+        pushUrl.submit()
+        sleep(2)
+        # __import__('pdb').set_trace()
+        driver.close()
+    except:
+        continue
+    break
 
 # Step 3: Init the new git repo and add gitlab as origin
 
